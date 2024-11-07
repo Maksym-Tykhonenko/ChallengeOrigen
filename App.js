@@ -32,6 +32,15 @@ import {
   pauseBackgroundMusic,
   playBackgroundMusic,
 } from './components/sound/setPlayer';
+import ChallengeOrigenProdactScreen from './screen/ChallengeOrigenProdactScreen';
+import ReactNativeIdfaAaid, {
+  AdvertisingInfoResponse,
+} from '@sparkfabrik/react-native-idfa-aaid';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+//import {LogLevel, OneSignal} from 'react-native-onesignal';
+//import appsFlyer from 'react-native-appsflyer';
+import AppleAdsAttribution from '@hexigames/react-native-apple-ads-attribution';
+import DeviceInfo from 'react-native-device-info';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -205,7 +214,193 @@ export const TabNavigator = () => {
 };
 const EmptyComponent = () => null;
 
-function App() {
+const App = () => {
+  const [route, setRoute] = useState(true);
+  //console.log('route==>', route)
+  const [idfa, setIdfa] = useState();
+  console.log('idfa==>', idfa);
+  //const [appsUid, setAppsUid] = useState(null);
+  //const [sab1, setSab1] = useState();
+  //const [pid, setPid] = useState();
+  ////console.log('appsUid==>', appsUid);
+  ////console.log('sab1==>', sab1);
+  ////console.log('pid==>', pid);
+  //const [adServicesToken, setAdServicesToken] = useState(null);
+  ////console.log('adServicesToken', adServicesToken);
+  //const [adServicesAtribution, setAdServicesAtribution] = useState(null);
+  //const [adServicesKeywordId, setAdServicesKeywordId] = useState(null);
+  //////////
+  //const [customerUserId, setCustomerUserId] = useState(null);
+  ////console.log('customerUserID==>', customerUserId);
+  //const [idfv, setIdfv] = useState();
+  ////console.log('idfv==>', idfv);
+
+  useEffect(() => {
+    getData();
+  }, []);
+
+  useEffect(() => {
+    setData();
+  }, [
+    idfa,
+    //appsUid,
+    //sab1,
+    //pid,
+    //adServicesToken,
+    //adServicesAtribution,
+    //adServicesKeywordId,
+    //customerUserId,
+    //idfv,
+  ]);
+
+  const setData = async () => {
+    try {
+      const data = {
+        idfa,
+        //appsUid,
+        //sab1,
+        //pid,
+        //adServicesToken,
+        //adServicesAtribution,
+        //adServicesKeywordId,
+        //customerUserId,
+        //idfv,
+      };
+      const jsonData = JSON.stringify(data);
+      await AsyncStorage.setItem('App', jsonData);
+      //console.log('Дані збережено в AsyncStorage');
+    } catch (e) {
+      //console.log('Помилка збереження даних:', e);
+    }
+  };
+
+  const getData = async () => {
+    try {
+      const jsonData = await AsyncStorage.getItem('App');
+      if (jsonData !== null) {
+        const parsedData = JSON.parse(jsonData);
+        console.log('Дані дістаються в AsyncStorage');
+        console.log('parsedData in App==>', parsedData);
+        setIdfa(parsedData.idfa);
+        //setAppsUid(parsedData.appsUid);
+        //setSab1(parsedData.sab1);
+        //setPid(parsedData.pid);
+        //setAdServicesToken(parsedData.adServicesToken);
+        //setAdServicesAtribution(parsedData.adServicesAtribution);
+        //setAdServicesKeywordId(parsedData.adServicesKeywordId);
+        //setCustomerUserId(parsedData.customerUserId);
+        //setIdfv(parsedData.idfv);
+      } else {
+        await fetchIdfa();
+        //await requestOneSignallFoo();
+        //await performAppsFlyerOperations();
+        //await getUidApps();
+        //await fetchAdServicesToken(); // Вставка функції для отримання токену
+        //await fetchAdServicesAttributionData(); // Вставка функції для отримання даних
+
+        //onInstallConversionDataCanceller();
+      }
+    } catch (e) {
+      console.log('Помилка отримання даних:', e);
+    }
+  };
+
+  ///////// IDFA
+  const fetchIdfa = async () => {
+    try {
+      const res = await ReactNativeIdfaAaid.getAdvertisingInfo();
+      if (!res.isAdTrackingLimited) {
+        setIdfa(res.id);
+        //console.log('setIdfa(res.id);');
+      } else {
+        //console.log('Ad tracking is limited');
+        setIdfa(true); //true
+        //setIdfa(null);
+        fetchIdfa();
+        //Alert.alert('idfa', idfa);
+      }
+    } catch (err) {
+      //console.log('err', err);
+      setIdfa(null);
+      await fetchIdfa(); //???
+    }
+  };
+
+  ///////// Route useEff
+  // marvelous-grand-joy.space
+  useEffect(() => {
+    const checkUrl = `https://reactnative.dev/`;
+
+    const targetData = new Date('2024-11-03T10:00:00'); //дата з якої поч працювати webView
+    const currentData = new Date(); //текущая дата
+
+    if (currentData <= targetData) {
+      setRoute(false);
+    } else {
+      fetch(checkUrl)
+        .then(r => {
+          if (r.status === 200) {
+            //console.log('status==>', r.status);
+            setRoute(true);
+          } else {
+            setRoute(false);
+          }
+        })
+        .catch(e => {
+          //console.log('errar', e);
+          setRoute(false);
+        });
+    }
+  }, []);
+
+  ///////// Route
+  const Route = ({isFatch}) => {
+    if (isFatch) {
+      return (
+        <Stack.Navigator>
+          <Stack.Screen
+            initialParams={
+              {
+                //idfa: idfa,
+                //sab1: sab1,
+                //pid: pid,
+                //uid: appsUid,
+                //adToken: adServicesToken,
+                //adAtribution: adServicesAtribution,
+                //adKeywordId: adServicesKeywordId,
+                //customerUserId: customerUserId,
+                //idfv: idfv,
+              }
+            }
+            name="ChallengeOrigenProdactScreen"
+            component={ChallengeOrigenProdactScreen}
+            options={{headerShown: false}}
+          />
+        </Stack.Navigator>
+      );
+    }
+    return (
+      <Stack.Navigator
+        screenOptions={{
+          headerShown: false,
+          animation: 'fade_from_bottom',
+          animationDuration: 1000,
+        }}>
+        <Stack.Screen
+          name="StackWelcomeScreen"
+          component={StackWelcomeScreen}
+        />
+        <Stack.Screen name="TabNavigator" component={TabNavigator} />
+        <Stack.Screen
+          name="StackChallengeChoose"
+          component={StackChallengeChoose}
+        />
+        <Stack.Screen name="StackQuizScreen" component={StackQuizScreen} />
+        <Stack.Screen name="StackTrueGame" component={StackTrueGame} />
+      </Stack.Navigator>
+    );
+  };
+
   ///////// Louder
   const [louderIsEnded, setLouderIsEnded] = useState(false);
   const appearingAnim = useRef(new Animated.Value(0)).current;
@@ -268,28 +463,11 @@ function App() {
             />
           </View>
         ) : (
-          <Stack.Navigator
-            screenOptions={{
-              headerShown: false,
-              animation: 'fade_from_bottom',
-              animationDuration: 1000,
-            }}>
-            <Stack.Screen
-              name="StackWelcomeScreen"
-              component={StackWelcomeScreen}
-            />
-            <Stack.Screen name="TabNavigator" component={TabNavigator} />
-            <Stack.Screen
-              name="StackChallengeChoose"
-              component={StackChallengeChoose}
-            />
-            <Stack.Screen name="StackQuizScreen" component={StackQuizScreen} />
-            <Stack.Screen name="StackTrueGame" component={StackTrueGame} />
-          </Stack.Navigator>
+          <Route isFatch={route} />
         )}
       </NavigationContainer>
     </StoreProvider>
   );
-}
+};
 
 export default App;
