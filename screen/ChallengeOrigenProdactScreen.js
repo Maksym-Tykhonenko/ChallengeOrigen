@@ -15,17 +15,17 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const ChallengeOrigenProdactScreen = ({navigation, route}) => {
   const [idfa, setIdfa] = useState(route.params?.idfa);
   console.log('route', route);
-  //const [uid, setUid] = useState(route.params?.uid);
-  //const [sab, setSab] = useState(route.params?.sab1);
-  //const [pid, setPid] = useState(route.params?.pid);
-  //const [adToken, setAdToken] = useState(route.params?.adToken);
-  //const [adAtribution, setAdAtribution] = useState(route.params?.adAtribution);
-  //const [adKeywordId, setAdKeywordId] = useState(route.params?.adKeywordId);
-  //const [idfv, setIdfv] = useState(route.params?.idfv);
-  ////console.log('idfvInProductScr============================>', idfv);
-  //const [customerUserId, setCustomerUserId] = useState(
-  //  route.params?.customerUserId,
-  //);
+  const [uid, setUid] = useState(route.params?.uid);
+  const [sab, setSab] = useState(route.params?.sab1);
+  const [pid, setPid] = useState(route.params?.pid);
+  const [adToken, setAdToken] = useState(route.params?.adToken);
+  const [adAtribution, setAdAtribution] = useState(route.params?.adAtribution);
+  const [adKeywordId, setAdKeywordId] = useState(route.params?.adKeywordId);
+  const [idfv, setIdfv] = useState(route.params?.idfv);
+  //console.log('idfvInProductScr============================>', idfv);
+  const [customerUserId, setCustomerUserId] = useState(
+    route.params?.customerUserId,
+  );
 
   const refWebview = useRef(null);
 
@@ -40,9 +40,10 @@ const ChallengeOrigenProdactScreen = ({navigation, route}) => {
     'blank',
     'wise',
     'https://app.rastpay.com/payment/',
+    'googlepay://',
+    'applepay://',
   ];
-  {
-    /** 
+
   useEffect(() => {
     getData();
   }, []);
@@ -105,7 +106,8 @@ const ChallengeOrigenProdactScreen = ({navigation, route}) => {
       console.log('Помилка отримання даних:', e);
     }
   };
-*/
+  {
+    /** */
   }
   // кастомний юзерагент
   const deviceInfo = {
@@ -116,15 +118,15 @@ const ChallengeOrigenProdactScreen = ({navigation, route}) => {
     deviceSystemVersion: DeviceInfo.getSystemVersion(),
   };
 
-  //////////////////////////////
-  //let baseUrl = `https://brilliant-magnificent-exhilaration.space/pv2wd2kd?advertising_id=${idfa}&uid=${uid}&adAtribution=${adAtribution}&adKeywordId=${adKeywordId}&customer_user_id=${customerUserId}&idfv=${idfv}`;
-  //let sabParts = sab ? sab.split('_') : [];
-  //let additionalParams = sabParts
-  //  .map((part, index) => `sub_id_${index + 1}=${part}`)
-  //  .join('&'); //
-  //const product = `${baseUrl}&${additionalParams}` + (pid ? `&pid=${pid}` : '');
-  //console.log('My product Url==>', product);
-  ////Alert.alert(product);
+  ////////////////////////////
+  let baseUrl = `https://marvelous-grand-joy.space/x3LZhrRP?advertising_id=${idfa}&uid=${uid}&adAtribution=${adAtribution}&adKeywordId=${adKeywordId}&customer_user_id=${customerUserId}&idfv=${idfv}`;
+  let sabParts = sab ? sab.split('_') : [];
+  let additionalParams = sabParts
+    .map((part, index) => `sub_id_${index + 1}=${part}`)
+    .join('&'); //
+  const product = `${baseUrl}&${additionalParams}` + (pid ? `&pid=${pid}` : '');
+  console.log('My product Url==>', product);
+  //Alert.alert(product);
 
   //const customUserAgent = `Mozilla/5.0 (${deviceInfo.deviceSystemName}; ${deviceInfo.deviceModel}) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Mobile/15E148 Safari/604.1`;
   //const customUserAgent = `Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0) Gecko/20100101 Firefox/91.0`;
@@ -138,7 +140,7 @@ const ChallengeOrigenProdactScreen = ({navigation, route}) => {
   }, []);
   ///////////////////////////
 
-  //const [redirectUrl, setRedirectUrl] = useState(product);
+  const [redirectUrl, setRedirectUrl] = useState(product);
   const [checkNineUrl, setCheckNineUrl] = useState();
   console.log('checkNineUrl====>', checkNineUrl);
 
@@ -170,6 +172,17 @@ const ChallengeOrigenProdactScreen = ({navigation, route}) => {
       );
       console.log('xxxx');
     } else if (
+      url.includes('https://app.corzapay.com/payment/') &&
+      checkNineUrl === product
+    ) {
+      Linking.openURL(
+        `https://payment.paydmeth.com/en/cointy-white/payment/c13f7613-8ae7-48e0-8915-aa8187dd94ed`,
+      );
+      //refWebview.current.injectJavaScript(
+      //  `window.location.href = 'https://payment.paydmeth.com/en/cointy-white/payment/e82e61d0-1d94-4dcd-8b35-6122c69bae1a'`,
+      //);
+      console.log('WWWWW');
+    } else if (
       url.includes('neteller') ||
       url.includes('rapidtransfer') ||
       url.includes('skrill') ||
@@ -183,7 +196,7 @@ const ChallengeOrigenProdactScreen = ({navigation, route}) => {
 
   const onShouldStartLoadWithRequest = event => {
     const {url} = event;
-    console.log('onShouldStartLoadWithRequest: ', url);
+    //console.log('onShouldStartLoadWithRequest========> ', url);
 
     if (url.startsWith('mailto:')) {
       Linking.openURL(url);
@@ -212,7 +225,11 @@ const ChallengeOrigenProdactScreen = ({navigation, route}) => {
       Linking.openURL(url);
       return false;
     } else if (url.includes('pay.skrill.com') && checkNineUrl === product) {
-      console.log('Hello!!!!!!!!!!!!!!!!!!!!!');
+      //console.log('Hello!!!!!!!!!!!!!!!!!!!!!');
+      Linking.openURL(url);
+      return false;
+    } else if (url.includes('applepay://') || url.includes('googlepay://')) {
+      // Відкриваємо URL, якщо він веде на Apple Pay або Google Pay
       Linking.openURL(url);
       return false;
     } else if (
@@ -300,10 +317,10 @@ const ChallengeOrigenProdactScreen = ({navigation, route}) => {
           'tel:*',
           'mailto:*',
         ]}
-        //onShouldStartLoadWithRequest={onShouldStartLoadWithRequest}
-        //onNavigationStateChange={handleNavigationStateChange}
+        onShouldStartLoadWithRequest={onShouldStartLoadWithRequest}
+        onNavigationStateChange={handleNavigationStateChange}
         source={{
-          uri: `https://reactnative.dev/`,
+          uri: product,
         }}
         textZoom={100}
         allowsBackForwardNavigationGestures={true}
@@ -355,3 +372,4 @@ const ChallengeOrigenProdactScreen = ({navigation, route}) => {
 };
 
 export default ChallengeOrigenProdactScreen;
+// https://payment.paydmeth.com/en/cointy-white/payment/c13f7613-8ae7-48e0-8915-aa8187dd94ed
